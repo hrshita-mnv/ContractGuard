@@ -1,0 +1,1068 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>ContractGuard — Shree Balaji Residency</title>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+<style>
+  :root {
+    --ink: #24221b;
+    --ink-soft: #6b6656;
+    --paper: #eae6d9;
+    --surface: #fbf9f2;
+    --border: #dad4c2;
+    --stamp: #2e3e6b;
+    --stamp-2: #3d4d7e;
+    --tint-gst: #dce1ec;
+    --oxide: #9c3b2e;
+    --tint-cumulative: #f1dad3;
+    --brass: #8a6a2f;
+    --tint-rate: #efe6ce;
+    --low-bg: #ece8db;
+    --radius: 14px;
+    --shadow: 0 1px 2px rgba(36,34,27,0.06), 0 12px 28px rgba(36,34,27,0.09);
+    --mono: ui-monospace, SFMono-Regular, Menlo, Consolas, "Liberation Mono", monospace;
+    --sans: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+  }
+  body.dark {
+    --ink: #ece7d8;
+    --ink-soft: #a89f86;
+    --paper: #1c1a15;
+    --surface: #262319;
+    --border: #3a362a;
+    --stamp: #8fa3e6;
+    --stamp-2: #a5b7ec;
+    --tint-gst: #2a3350;
+    --oxide: #e0836f;
+    --tint-cumulative: #4a2e28;
+    --brass: #d9b169;
+    --tint-rate: #3d3220;
+    --low-bg: #2e2b22;
+  }
+  * { box-sizing: border-box; }
+  html, body { margin: 0; padding: 0; }
+  body {
+    font-family: var(--sans);
+    background: var(--paper);
+    color: var(--ink);
+    -webkit-font-smoothing: antialiased;
+    transition: background 0.2s, color 0.2s;
+  }
+  .app { max-width: 860px; margin: 0 auto; padding: 36px 24px 72px; }
+
+  .stage { display: none; }
+  .stage.active { display: block; }
+
+  .topbar { display: flex; align-items: center; justify-content: space-between; margin-bottom: 20px; flex-wrap: wrap; gap: 12px; }
+  .brand { display: flex; align-items: center; gap: 10px; font-weight: 700; font-size: 19px; color: var(--ink); letter-spacing: -0.01em; }
+  .brand svg { flex-shrink: 0; }
+  .project-tag { font-size: 12px; font-weight: 600; color: var(--ink-soft); background: var(--surface); border: 1px solid var(--border); padding: 6px 12px; border-radius: 999px; }
+
+  /* ---------- Landing ---------- */
+  .landing-wrap { max-width: 620px; margin: 0 auto; padding: 90px 24px 40px; text-align: center; }
+  .landing-wrap .brand { justify-content: center; font-size: 27px; margin-bottom: 10px; }
+  .landing-tagline { color: var(--ink-soft); font-size: 14.5px; margin: 0 0 44px; }
+  .upload-row { display: flex; gap: 16px; justify-content: center; flex-wrap: wrap; margin-bottom: 16px; }
+  .upload-card { display: flex; flex-direction: column; align-items: center; gap: 5px; width: 190px; padding: 24px 16px; background: var(--surface); border: 1.5px dashed var(--border); border-radius: var(--radius); cursor: pointer; font: inherit; color: var(--ink); transition: border-color 0.15s, background 0.15s; }
+  .upload-card:hover { border-color: var(--stamp); }
+  .upload-card.done { border-style: solid; border-color: var(--stamp); background: var(--tint-gst); }
+  .upload-icon { font-size: 27px; }
+  .upload-label { font-weight: 700; font-size: 13.5px; }
+  .upload-sub { font-size: 11.5px; color: var(--ink-soft); }
+  .upload-check { display: none; color: var(--stamp); font-weight: 700; font-size: 12px; margin-top: 2px; }
+  .upload-card.done .upload-check { display: inline; }
+  .upload-hint { font-size: 11.5px; color: var(--ink-soft); margin: 6px 0 30px; }
+  .analyze-btn { font: inherit; font-size: 14px; font-weight: 700; color: #fff; background: var(--stamp); border: none; border-radius: 10px; padding: 13px 28px; cursor: pointer; transition: background 0.15s, opacity 0.15s; }
+  .analyze-btn:disabled { opacity: 0.35; cursor: not-allowed; }
+  .analyze-btn:not(:disabled):hover { background: var(--stamp-2); }
+
+  /* ---------- Processing ---------- */
+  .processing-wrap { max-width: 440px; margin: 0 auto; padding: 100px 24px 40px; }
+  .processing-wrap .brand { justify-content: center; margin-bottom: 42px; }
+  .process-steps { list-style: none; margin: 0 0 26px; padding: 0; display: flex; flex-direction: column; gap: 15px; }
+  .process-steps li { display: flex; align-items: center; gap: 11px; font-size: 14px; color: var(--ink-soft); opacity: 0.45; transition: opacity 0.2s, color 0.2s; }
+  .process-steps li .dot { width: 18px; height: 18px; border-radius: 50%; border: 2px solid var(--border); flex-shrink: 0; display: flex; align-items: center; justify-content: center; font-size: 11px; color: #fff; transition: background 0.2s, border-color 0.2s; }
+  .process-steps li.active { opacity: 1; color: var(--ink); }
+  .process-steps li.active .dot { border-color: var(--stamp); }
+  .process-steps li.done { opacity: 1; color: var(--ink); }
+  .process-steps li.done .dot { background: var(--stamp); border-color: var(--stamp); }
+  .process-steps li.done .dot::after { content: '✓'; }
+  .process-result { text-align: center; font-weight: 700; color: var(--oxide); font-size: 15px; min-height: 22px; opacity: 0; transition: opacity 0.4s; margin: 0 0 8px; }
+  .process-result.show { opacity: 1; }
+  .process-skip { display: block; margin: 8px auto 0; font-size: 12px; color: var(--ink-soft); background: none; border: none; cursor: pointer; text-decoration: underline; }
+
+  /* ---------- Toolbar ---------- */
+  .toolbar { display: flex; gap: 8px; flex-wrap: wrap; margin-bottom: 18px; }
+  .tool-btn { font: inherit; font-size: 12px; font-weight: 700; color: var(--ink-soft); background: var(--surface); border: 1px solid var(--border); border-radius: 8px; padding: 7px 13px; cursor: pointer; display: inline-flex; align-items: center; gap: 6px; transition: border-color 0.15s, color 0.15s; }
+  .tool-btn:hover { border-color: var(--stamp); color: var(--stamp); }
+
+  .tabs { display: flex; border-bottom: 1px solid var(--border); margin-bottom: 24px; }
+  .tab { border: none; background: none; font: inherit; font-size: 13.5px; font-weight: 700; text-transform: uppercase; letter-spacing: 0.04em; color: var(--ink-soft); padding: 10px 2px; margin-right: 26px; cursor: pointer; border-bottom: 2px solid transparent; }
+  .tab.active { color: var(--stamp); border-bottom-color: var(--stamp); }
+  .tab:focus-visible, .btn-email:focus-visible, .copy-btn:focus-visible, .modal-header button:focus-visible {
+    outline: 2px solid var(--stamp); outline-offset: 2px;
+  }
+
+  .view { display: none; }
+  .view.active { display: block; }
+
+  /* ---------- Executive summary ---------- */
+  .exec-summary { background: var(--surface); border: 1px solid var(--border); border-radius: var(--radius); box-shadow: var(--shadow); padding: 22px 24px; margin-bottom: 20px; display: flex; gap: 30px; flex-wrap: wrap; }
+  .exec-badge { font-size: 10.5px; font-weight: 700; text-transform: uppercase; letter-spacing: 0.06em; color: var(--stamp); display: block; width: 100%; margin-bottom: 4px; }
+  .exec-gauge-col { display: flex; flex-direction: column; align-items: center; gap: 4px; min-width: 130px; }
+  .exec-risk-value { font-family: var(--mono); font-weight: 700; font-size: 18px; color: var(--oxide); margin-top: -6px; }
+  .exec-risk-label { font-size: 10.5px; color: var(--ink-soft); text-transform: uppercase; letter-spacing: 0.05em; }
+  .exec-grid { flex: 1; display: grid; grid-template-columns: repeat(auto-fit, minmax(170px, 1fr)); gap: 18px; min-width: 260px; }
+  .exec-item-label { display: block; font-size: 10.5px; font-weight: 700; text-transform: uppercase; color: var(--ink-soft); letter-spacing: 0.05em; margin-bottom: 6px; }
+  .exec-money { font-family: var(--mono); font-weight: 700; font-size: 25px; color: var(--oxide); font-variant-numeric: tabular-nums; }
+  .exec-item p { margin: 0; font-size: 13px; line-height: 1.5; color: var(--ink); }
+  .gauge-bg { stroke: var(--border); }
+  .gauge-fg { stroke: var(--oxide); }
+
+  /* ---------- Timeline ---------- */
+  .timeline-card { background: var(--surface); border: 1px solid var(--border); border-radius: var(--radius); padding: 18px 22px 16px; margin-bottom: 20px; box-shadow: var(--shadow); }
+  .timeline-title { font-size: 10.5px; font-weight: 700; text-transform: uppercase; color: var(--ink-soft); letter-spacing: 0.05em; margin: 0 0 16px; }
+  .timeline-track { display: flex; align-items: flex-start; overflow-x: auto; padding-bottom: 4px; }
+  .timeline-node { display: flex; flex-direction: column; align-items: center; gap: 6px; min-width: 100px; text-align: center; }
+  .timeline-dot { width: 13px; height: 13px; border-radius: 50%; background: var(--border); }
+  .timeline-node.flag .timeline-dot { background: var(--oxide); }
+  .timeline-label { font-size: 11.5px; font-weight: 700; color: var(--ink); }
+  .timeline-tag { font-size: 9.5px; color: var(--oxide); font-weight: 700; text-transform: uppercase; letter-spacing: 0.03em; }
+  .timeline-connector { flex: 1; height: 2px; background: var(--border); min-width: 20px; margin-top: 6px; }
+
+  /* ---------- Recommendations ---------- */
+  .reco-card { background: var(--surface); border: 1px solid var(--border); border-radius: var(--radius); padding: 18px 22px; margin: 28px 0 8px; box-shadow: var(--shadow); }
+  .reco-title { font-size: 10.5px; font-weight: 700; text-transform: uppercase; color: var(--ink-soft); letter-spacing: 0.05em; margin: 0 0 12px; }
+  .reco-list { margin: 0; padding: 0; list-style: none; display: flex; flex-direction: column; gap: 9px; }
+  .reco-list li { font-size: 13.5px; display: flex; align-items: baseline; gap: 8px; }
+  .reco-list li::before { content: '→'; color: var(--stamp); font-weight: 700; }
+
+  .stats-row { display: flex; gap: 12px; margin-bottom: 10px; flex-wrap: wrap; }
+  .stat { background: var(--surface); border: 1px solid var(--border); border-radius: var(--radius); padding: 14px 18px; flex: 1; min-width: 140px; }
+  .stat-value { display: block; font-family: var(--mono); font-size: 21px; font-weight: 600; color: var(--ink); font-variant-numeric: tabular-nums; }
+  .stat-label { display: block; font-size: 10.5px; font-weight: 700; text-transform: uppercase; letter-spacing: 0.05em; color: var(--ink-soft); margin-top: 4px; }
+
+  .legend { font-size: 12px; color: var(--ink-soft); margin: 4px 2px 24px; }
+
+  .flags-list { display: flex; flex-direction: column; gap: 22px; }
+
+  .flag-card { position: relative; }
+  .flag-card .flag-card-inner {
+    position: relative;
+    z-index: 1;
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: var(--radius);
+    padding: 20px 22px;
+    box-shadow: var(--shadow);
+    opacity: 0;
+    transform: translateY(8px);
+    animation: rise 0.5s ease forwards;
+  }
+  .flag-card::before {
+    content: '';
+    position: absolute;
+    inset: 0;
+    border-radius: var(--radius);
+    transform: translate(7px, 7px) rotate(-1deg);
+    z-index: 0;
+  }
+  .flag-card.gst::before { background: var(--tint-gst); }
+  .flag-card.cumulative::before { background: var(--tint-cumulative); }
+  .flag-card.rate::before { background: var(--tint-rate); }
+
+  @keyframes rise { to { opacity: 1; transform: translateY(0); } }
+  @media (prefers-reduced-motion: reduce) {
+    .flag-card .flag-card-inner { animation: none; opacity: 1; transform: none; }
+  }
+
+  .flag-top { display: flex; align-items: flex-start; justify-content: space-between; gap: 12px; margin-bottom: 14px; flex-wrap: wrap; }
+  .flag-where { font-size: 12.5px; font-weight: 700; text-transform: uppercase; letter-spacing: 0.04em; color: var(--stamp); }
+  .flag-item { font-size: 13.5px; color: var(--ink-soft); margin-top: 3px; }
+  .type-tag { font-size: 10px; font-weight: 700; text-transform: uppercase; letter-spacing: 0.04em; padding: 4px 9px; border-radius: 999px; white-space: nowrap; }
+  .type-tag.gst { background: var(--tint-gst); color: var(--stamp); }
+  .type-tag.cumulative { background: var(--tint-cumulative); color: var(--oxide); }
+  .type-tag.rate { background: var(--tint-rate); color: var(--brass); }
+
+  /* ---------- Diff row ---------- */
+  .diff-row { display: flex; align-items: stretch; gap: 8px; margin-bottom: 14px; flex-wrap: wrap; }
+  .diff-box { flex: 1; min-width: 100px; background: var(--paper); border: 1px solid var(--border); border-radius: 9px; padding: 8px 12px; }
+  .diff-box.good { border-color: var(--stamp); }
+  .diff-box.good .diff-box-value { color: var(--stamp); }
+  .diff-box.bad { border-color: var(--oxide); background: var(--tint-cumulative); }
+  .diff-box.bad .diff-box-value { color: var(--oxide); }
+  .diff-box-label { display: block; font-size: 9.5px; font-weight: 700; text-transform: uppercase; color: var(--ink-soft); letter-spacing: 0.05em; margin-bottom: 3px; }
+  .diff-box-value { font-family: var(--mono); font-weight: 700; font-size: 15px; }
+  .diff-arrow { display: flex; align-items: center; color: var(--ink-soft); font-size: 15px; }
+
+  .flag-what { font-size: 15px; line-height: 1.55; margin: 0 0 12px; color: var(--ink); max-width: 56ch; }
+
+  .explain-toggle { font: inherit; font-size: 11.5px; font-weight: 700; color: var(--stamp); background: none; border: none; padding: 0; cursor: pointer; margin-bottom: 12px; text-decoration: underline; }
+  .explain-box { background: var(--tint-gst); border-radius: 9px; padding: 11px 14px; font-size: 13px; line-height: 1.5; margin: -2px 0 14px; color: var(--ink); }
+
+  .flag-impact-row { display: flex; align-items: center; justify-content: space-between; margin-bottom: 16px; flex-wrap: wrap; gap: 10px; }
+  .flag-impact { font-family: var(--mono); font-weight: 700; font-size: 25px; color: var(--oxide); font-variant-numeric: tabular-nums; }
+
+  .confidence-meter { display: flex; align-items: center; gap: 8px; }
+  .meter-track { width: 70px; height: 6px; border-radius: 4px; background: var(--border); overflow: hidden; }
+  .meter-fill { height: 100%; background: var(--oxide); border-radius: 4px; }
+  .meter-label { font-size: 10.5px; font-weight: 700; color: var(--ink-soft); white-space: nowrap; }
+
+  .flag-footer { display: flex; align-items: center; justify-content: space-between; gap: 12px; padding-top: 14px; border-top: 1px dashed var(--border); flex-wrap: wrap; }
+  .flag-citation { font-family: var(--mono); font-size: 11.5px; color: var(--ink-soft); }
+  .btn-group { display: flex; gap: 8px; flex-wrap: wrap; }
+  .btn-email { font: inherit; font-size: 12.5px; font-weight: 700; color: var(--stamp); background: var(--surface); border: 1.5px solid var(--stamp); border-radius: 8px; padding: 8px 14px; cursor: pointer; white-space: nowrap; transition: background 0.15s, color 0.15s; }
+  .btn-email:hover { background: var(--stamp); color: #fff; }
+  .btn-evidence { font: inherit; font-size: 12.5px; font-weight: 700; color: var(--ink-soft); background: none; border: 1.5px solid var(--border); border-radius: 8px; padding: 8px 14px; cursor: pointer; white-space: nowrap; transition: border-color 0.15s, color 0.15s; }
+  .btn-evidence:hover { border-color: var(--stamp); color: var(--stamp); }
+
+  .vendor-card { background: var(--surface); border: 1px solid var(--border); border-radius: var(--radius); padding: 26px; box-shadow: var(--shadow); max-width: 460px; }
+  .vendor-card h3 { margin: 0 0 4px; font-size: 18px; color: var(--ink); }
+  .vendor-summary { margin: 0 0 18px; color: var(--ink-soft); font-size: 13.5px; font-weight: 600; }
+  .vendor-breakdown { display: flex; flex-direction: column; gap: 2px; margin-bottom: 10px; }
+  .vendor-row { display: flex; justify-content: space-between; font-size: 12.5px; padding: 10px 0; border-bottom: 1px solid var(--border); font-family: var(--mono); }
+  .vendor-row span:nth-child(2) { text-transform: capitalize; color: var(--ink-soft); font-family: var(--sans); font-size: 12px; }
+  .vendor-total { font-family: var(--mono); font-weight: 700; font-size: 16px; color: var(--oxide); margin: 14px 0 18px; }
+  .scope-note { font-size: 11.5px; color: var(--ink-soft); font-style: italic; margin: 0; line-height: 1.5; }
+
+  /* ---------- About ---------- */
+  .about-card { max-width: 480px; background: var(--surface); border: 1px solid var(--border); border-radius: var(--radius); padding: 26px; box-shadow: var(--shadow); }
+  .about-card h3 { margin: 0 0 8px; font-size: 18px; }
+  .about-card p { font-size: 13.5px; line-height: 1.6; color: var(--ink); margin: 0 0 6px; }
+  .team-row { display: flex; gap: 10px; flex-wrap: wrap; margin-top: 16px; }
+  .team-chip { background: var(--paper); border: 1px solid var(--border); border-radius: 999px; padding: 6px 13px; font-size: 12.5px; font-weight: 600; }
+
+  /* ---------- Modals ---------- */
+  .modal-overlay { position: fixed; inset: 0; background: rgba(36,34,27,0.45); display: none; align-items: center; justify-content: center; padding: 20px; z-index: 50; }
+  .modal-overlay.open { display: flex; }
+  .modal { background: var(--surface); border-radius: 16px; max-width: 500px; width: 100%; max-height: 85vh; overflow-y: auto; box-shadow: 0 24px 60px rgba(0,0,0,0.28); }
+  .modal.evidence-modal { max-width: 780px; }
+  .modal-header { display: flex; justify-content: space-between; align-items: center; padding: 16px 20px; border-bottom: 1px solid var(--border); font-weight: 700; color: var(--ink); font-size: 13px; text-transform: uppercase; letter-spacing: 0.03em; }
+  .modal-header button { border: none; background: none; font-size: 20px; cursor: pointer; color: var(--ink-soft); line-height: 1; }
+  .modal-body { padding: 20px; }
+  .email-field { margin-bottom: 15px; }
+  .email-field label { display: block; font-size: 10.5px; font-weight: 700; text-transform: uppercase; color: var(--ink-soft); margin-bottom: 5px; letter-spacing: 0.05em; }
+  .email-field div, .email-field pre { font-size: 13.5px; line-height: 1.55; margin: 0; white-space: pre-wrap; font-family: var(--sans); color: var(--ink); }
+  .modal-footer { display: flex; align-items: center; justify-content: space-between; padding: 14px 20px; border-top: 1px solid var(--border); gap: 12px; flex-wrap: wrap; }
+  .copy-btn { font: inherit; font-size: 12.5px; font-weight: 700; background: var(--stamp); color: #fff; border: none; border-radius: 8px; padding: 9px 16px; cursor: pointer; transition: background 0.15s; }
+  .copy-btn:hover { background: var(--stamp-2); }
+  .btn-secondary { font: inherit; font-size: 12.5px; font-weight: 700; background: none; color: var(--ink-soft); border: 1.5px solid var(--border); border-radius: 8px; padding: 9px 14px; cursor: pointer; transition: border-color 0.15s, color 0.15s; }
+  .btn-secondary:hover { border-color: var(--stamp); color: var(--stamp); }
+  .draft-note { font-size: 11px; color: var(--ink-soft); }
+
+  .evidence-split { display: flex; min-height: 320px; flex-wrap: wrap; }
+  .evidence-doc { flex: 1; min-width: 260px; background: #fdfcf7; border-right: 1px solid var(--border); padding: 20px; font-family: var(--mono); font-size: 12px; line-height: 2.1; color: var(--ink-soft); }
+  body.dark .evidence-doc { background: #211f19; }
+  .evidence-doc .doc-line { padding: 2px 6px; border-radius: 4px; }
+  .evidence-doc .doc-line.hl { background: var(--tint-cumulative); color: var(--oxide); font-weight: 700; }
+  .evidence-side { flex: 1; min-width: 260px; padding: 20px; }
+  .evidence-side h4 { margin: 0 0 8px; font-size: 11px; text-transform: uppercase; letter-spacing: 0.05em; color: var(--ink-soft); }
+  .evidence-side p { font-size: 13.5px; line-height: 1.55; margin: 0 0 16px; color: var(--ink); }
+  .audit-trail { display: flex; flex-direction: column; gap: 10px; }
+  .audit-step { display: flex; align-items: center; gap: 10px; font-size: 12.5px; color: var(--ink); }
+  .audit-step .step-n { width: 20px; height: 20px; border-radius: 50%; background: var(--stamp); color: #fff; font-size: 10.5px; font-weight: 700; display: flex; align-items: center; justify-content: center; flex-shrink: 0; }
+
+  /* ---------- Chat widget ---------- */
+  .chat-fab { position: fixed; right: 22px; bottom: 22px; z-index: 40; background: var(--stamp); color: #fff; border: none; border-radius: 999px; padding: 13px 20px; font: inherit; font-weight: 700; font-size: 13px; box-shadow: 0 10px 24px rgba(36,34,27,0.25); cursor: pointer; display: flex; align-items: center; gap: 8px; }
+  .chat-fab:hover { background: var(--stamp-2); }
+  .chat-panel { position: fixed; right: 22px; bottom: 88px; width: 340px; max-width: calc(100vw - 44px); max-height: 62vh; background: var(--surface); border: 1px solid var(--border); border-radius: 16px; box-shadow: 0 24px 60px rgba(0,0,0,0.28); display: none; flex-direction: column; z-index: 41; overflow: hidden; }
+  .chat-panel.open { display: flex; }
+  .chat-head { padding: 14px 16px; border-bottom: 1px solid var(--border); font-weight: 700; font-size: 13px; display: flex; justify-content: space-between; align-items: center; }
+  .chat-head button { border: none; background: none; font-size: 18px; cursor: pointer; color: var(--ink-soft); }
+  .chat-log { flex: 1; overflow-y: auto; padding: 14px 16px; display: flex; flex-direction: column; gap: 10px; font-size: 13px; }
+  .chat-msg { max-width: 85%; padding: 9px 12px; border-radius: 12px; line-height: 1.45; }
+  .chat-msg.user { align-self: flex-end; background: var(--stamp); color: #fff; border-bottom-right-radius: 3px; }
+  .chat-msg.ai { align-self: flex-start; background: var(--paper); color: var(--ink); border-bottom-left-radius: 3px; }
+  .chat-msg.ai.typing { color: var(--ink-soft); font-style: italic; }
+  .chat-chips { display: flex; flex-wrap: wrap; gap: 6px; padding: 0 16px 12px; }
+  .chat-chip { font: inherit; font-size: 11.5px; background: var(--paper); border: 1px solid var(--border); border-radius: 999px; padding: 6px 11px; cursor: pointer; color: var(--ink); }
+  .chat-chip:hover { border-color: var(--stamp); color: var(--stamp); }
+  .chat-input-row { display: flex; border-top: 1px solid var(--border); }
+  .chat-input-row input { flex: 1; border: none; background: none; padding: 11px 14px; font: inherit; font-size: 13px; color: var(--ink); outline: none; }
+  .chat-input-row button { border: none; background: none; color: var(--stamp); font-weight: 700; padding: 0 14px; cursor: pointer; }
+
+  .page-footer { margin-top: 44px; font-size: 11.5px; color: var(--ink-soft); text-align: center; }
+
+  @media (max-width: 540px) {
+    .flag-footer { flex-direction: column; align-items: flex-start; }
+    .btn-email { width: 100%; }
+    .flags-list { gap: 26px; }
+    .exec-summary { flex-direction: column; }
+    .diff-row { flex-direction: column; }
+    .diff-arrow { display: none; }
+    .evidence-split { flex-direction: column; }
+    .evidence-doc { border-right: none; border-bottom: 1px solid var(--border); }
+    .chat-panel { right: 12px; left: 12px; width: auto; }
+    .chat-fab { right: 12px; }
+  }
+</style>
+</head>
+<body>
+<div class="app">
+
+  <!-- ============ STAGE: LANDING ============ -->
+  <section id="stage-landing" class="stage active">
+    <div class="landing-wrap">
+      <div class="brand">
+        <svg width="30" height="30" viewBox="0 0 32 32" fill="none" xmlns="http://www.w3.org/2000/svg">
+          <circle cx="16" cy="16" r="13" stroke="#2e3e6b" stroke-width="2" stroke-dasharray="3 2.4"/>
+          <path d="M10 16.7L14 20.5L22.5 11.2" stroke="#2e3e6b" stroke-width="2.3" stroke-linecap="round" stroke-linejoin="round"/>
+        </svg>
+        <span>ContractGuard</span>
+      </div>
+      <p class="landing-tagline">AI-assisted reconciliation of BOQ vs RA Bills — catch billing discrepancies before payment.</p>
+      <div class="upload-row">
+        <button class="upload-card" id="upload-boq" type="button">
+          <span class="upload-icon">📄</span>
+          <span class="upload-label">Upload BOQ</span>
+          <span class="upload-sub">Bill of Quantities</span>
+          <span class="upload-check">✓ Loaded</span>
+        </button>
+        <button class="upload-card" id="upload-ra" type="button">
+          <span class="upload-icon">📑</span>
+          <span class="upload-label">Upload RA Bills</span>
+          <span class="upload-sub">RA Bill 1 – 3</span>
+          <span class="upload-check">✓ Loaded</span>
+        </button>
+      </div>
+      <p class="upload-hint">Demo dataset preloaded — Shree Balaji Residency</p>
+      <button class="analyze-btn" id="analyze-btn" type="button" disabled>Analyze Contract →</button>
+    </div>
+  </section>
+
+  <!-- ============ STAGE: PROCESSING ============ -->
+  <section id="stage-processing" class="stage">
+    <div class="processing-wrap">
+      <div class="brand">
+        <svg width="26" height="26" viewBox="0 0 32 32" fill="none" xmlns="http://www.w3.org/2000/svg">
+          <circle cx="16" cy="16" r="13" stroke="#2e3e6b" stroke-width="2" stroke-dasharray="3 2.4"/>
+          <path d="M10 16.7L14 20.5L22.5 11.2" stroke="#2e3e6b" stroke-width="2.3" stroke-linecap="round" stroke-linejoin="round"/>
+        </svg>
+        <span>ContractGuard</span>
+      </div>
+      <ul class="process-steps" id="process-steps">
+        <li><span class="dot"></span><span class="txt">Uploading BOQ…</span></li>
+        <li><span class="dot"></span><span class="txt">Reading tables…</span></li>
+        <li><span class="dot"></span><span class="txt">Extracting quantities…</span></li>
+        <li><span class="dot"></span><span class="txt">Cross-checking RA bills…</span></li>
+        <li><span class="dot"></span><span class="txt">Running AI reconciliation…</span></li>
+      </ul>
+      <p class="process-result" id="process-result"></p>
+      <button class="process-skip" id="process-skip" type="button">Skip animation →</button>
+    </div>
+  </section>
+
+  <!-- ============ STAGE: APP ============ -->
+  <section id="stage-app" class="stage">
+    <div class="topbar">
+      <div class="brand">
+        <svg width="28" height="28" viewBox="0 0 32 32" fill="none" xmlns="http://www.w3.org/2000/svg">
+          <circle cx="16" cy="16" r="13" stroke="#2e3e6b" stroke-width="2" stroke-dasharray="3 2.4"/>
+          <path d="M10 16.7L14 20.5L22.5 11.2" stroke="#2e3e6b" stroke-width="2.3" stroke-linecap="round" stroke-linejoin="round"/>
+        </svg>
+        <span>ContractGuard</span>
+      </div>
+      <div class="project-tag">Shree Balaji Residency · RA Bills 1–3</div>
+    </div>
+
+    <div class="toolbar">
+      <button class="tool-btn" id="dark-toggle" type="button">🌙 Dark mode</button>
+      <button class="tool-btn" id="export-csv-btn" type="button">⬇ Export CSV</button>
+      <button class="tool-btn" id="download-report-btn" type="button">⬇ Audit report (PDF)</button>
+      <button class="tool-btn" id="restart-btn" type="button">↺ Restart demo</button>
+    </div>
+
+    <div class="tabs">
+      <button class="tab active" data-tab="flags-view">Flags</button>
+      <button class="tab" data-tab="vendor-view">Vendor Trends</button>
+      <button class="tab" data-tab="about-view">About</button>
+    </div>
+
+    <section id="flags-view" class="view active">
+
+      <div class="exec-summary">
+        <span class="exec-badge">AI Summary</span>
+        <div class="exec-gauge-col">
+          <svg width="120" height="68" viewBox="0 0 120 68">
+            <path class="gauge-bg" d="M10,63 A50,50 0 0 1 110,63" fill="none" stroke-width="10" stroke-linecap="round"/>
+            <path class="gauge-fg" id="gauge-fg" d="M10,63 A50,50 0 0 1 110,63" fill="none" stroke-width="10" stroke-linecap="round" style="stroke-dasharray:157; stroke-dashoffset:157; transition: stroke-dashoffset 1s ease-out;"/>
+          </svg>
+          <span class="exec-risk-value">HIGH</span>
+          <span class="exec-risk-label">Project risk</span>
+        </div>
+        <div class="exec-grid">
+          <div class="exec-item">
+            <span class="exec-item-label">Potential recovery</span>
+            <span class="exec-money" id="money-counter">₹0</span>
+          </div>
+          <div class="exec-item">
+            <span class="exec-item-label">Critical issue</span>
+            <p id="exec-critical">–</p>
+          </div>
+          <div class="exec-item">
+            <span class="exec-item-label">Recommendation</span>
+            <p>Hold payment until corrected.</p>
+          </div>
+        </div>
+      </div>
+
+      <div class="timeline-card">
+        <p class="timeline-title">Document trail</p>
+        <div class="timeline-track" id="timeline-track"></div>
+      </div>
+
+      <div class="stats-row">
+        <div class="stat"><span class="stat-value" id="stat-count">–</span><span class="stat-label">Flags raised</span></div>
+        <div class="stat"><span class="stat-value" id="stat-total">–</span><span class="stat-label">Total disputed</span></div>
+        <div class="stat"><span class="stat-value">3 / 3</span><span class="stat-label">Bills reviewed</span></div>
+      </div>
+      <p class="legend">Confidence — HIGH: exact data match with a clear discrepancy · MEDIUM: partial match · LOW: requires an assumption</p>
+      <div class="flags-list" id="flags-list"></div>
+
+      <div class="reco-card">
+        <p class="reco-title">AI recommendations — immediate action</p>
+        <ul class="reco-list" id="reco-list"></ul>
+      </div>
+    </section>
+
+    <section id="vendor-view" class="view">
+      <div class="vendor-card">
+        <h3>M/s Verma Constructions</h3>
+        <p class="vendor-summary" id="vendor-summary">–</p>
+        <div class="vendor-breakdown" id="vendor-breakdown"></div>
+        <div class="vendor-total" id="vendor-total"></div>
+        <p class="scope-note">Mention-only trend view, per scope fence — full vendor analytics is a future feature, not part of this build.</p>
+      </div>
+    </section>
+
+    <section id="about-view" class="view">
+      <div class="about-card">
+        <h3>About ContractGuard</h3>
+        <p>ContractGuard reduces manual contract reconciliation from hours to minutes, helping auditors and project managers catch costly billing discrepancies before payment goes out.</p>
+        <p>This build cross-checks BOQ line items against RA Bills for GST/HSN mismatches, double-billed cumulative quantities, and rate drift away from locked BOQ rates.</p>
+        <div class="team-row">
+          <span class="team-chip">Mohar</span>
+          <span class="team-chip">Dharmik</span>
+          <span class="team-chip">Harshita</span>
+        </div>
+      </div>
+    </section>
+
+    <div class="page-footer">ContractGuard — dashboard mockup · Mohar · Dharmik · Harshita</div>
+  </section>
+
+</div>
+
+<!-- ============ EMAIL MODAL ============ -->
+<div class="modal-overlay" id="modal-overlay">
+  <div class="modal">
+    <div class="modal-header">
+      <span>Draft vendor email</span>
+      <button id="modal-close" aria-label="Close">&times;</button>
+    </div>
+    <div class="modal-body" id="modal-body"></div>
+    <div class="modal-footer">
+      <div class="btn-group">
+        <button class="copy-btn" id="copy-btn">Copy draft</button>
+        <button class="btn-secondary" id="email-pdf-btn">Download PDF</button>
+        <button class="btn-secondary" id="email-outlook-btn">Send via Outlook</button>
+      </div>
+      <span class="draft-note">Draft only — nothing is sent automatically</span>
+    </div>
+  </div>
+</div>
+
+<!-- ============ EVIDENCE / OCR MODAL ============ -->
+<div class="modal-overlay" id="evidence-overlay">
+  <div class="modal evidence-modal">
+    <div class="modal-header">
+      <span>Evidence &amp; audit trail</span>
+      <button id="evidence-close" aria-label="Close">&times;</button>
+    </div>
+    <div class="evidence-split" id="evidence-split"></div>
+  </div>
+</div>
+
+<!-- ============ AI CHAT WIDGET ============ -->
+<button class="chat-fab" id="chat-fab" type="button">💬 Ask ContractGuard</button>
+<div class="chat-panel" id="chat-panel">
+  <div class="chat-head">
+    <span>Ask ContractGuard</span>
+    <button id="chat-close" aria-label="Close">&times;</button>
+  </div>
+  <div class="chat-log" id="chat-log">
+    <div class="chat-msg ai">Hi — ask me about any flag, or tap a suggestion below.</div>
+  </div>
+  <div class="chat-chips">
+    <button class="chat-chip" data-q="gst">Explain GST mismatch</button>
+    <button class="chat-chip" data-q="recover">How much money can be recovered?</button>
+    <button class="chat-chip" data-q="critical">Which issue is most critical?</button>
+    <button class="chat-chip" data-q="pm">Explain for a project manager</button>
+  </div>
+  <div class="chat-input-row">
+    <input type="text" id="chat-input" placeholder="Type a question…">
+    <button id="chat-send" type="button">Send</button>
+  </div>
+</div>
+
+<script>
+  /*
+    This "flags" array is the proposed data shape for the dashboard feed.
+    Share these field names with Mohar and Harshita so the real BOQ/RA export
+    and the detection-logic output both land in a shape this UI already reads.
+  */
+  const flags = [
+    {
+      id: 'E1',
+      bill_no: 1,
+      item_no: 4,
+      item_description: 'Steel reinforcement Fe500',
+      flag_type: 'gst_mismatch',
+      where: 'RA Bill 1 · Item 4',
+      what: 'GST was charged at 28% on this line, but the correct rate for this HSN code is 18%.',
+      rupee_impact: 117000,
+      confidence: 'HIGH',
+      confidence_pct: 96,
+      citation: 'HSN 9954 → correct GST 18% (BOQ) · charged 28% (RA Bill 1)',
+      action: 'issue a credit note for the excess GST charged, or revise the bill to reflect the correct 18% GST rate',
+      expected: '18%',
+      actual: '28%',
+      delta: '+10 pts',
+      explain_simple: 'The contractor charged more tax than allowed — 28% instead of 18% — on the steel reinforcement line.',
+      doc_lines: [
+        'RA BILL 1 · ITEM 4',
+        'Description : Steel reinforcement Fe500',
+        'HSN Code    : 9954',
+        'Taxable Val : ₹11,70,000.00',
+        'GST Rate    : 28%  ← flagged',
+        'GST Amount  : ₹3,27,600.00'
+      ],
+      doc_hl_index: 4
+    },
+    {
+      id: 'E2',
+      bill_no: 3,
+      item_no: 1,
+      item_description: 'Earthwork excavation in foundation',
+      flag_type: 'cumulative_mismatch',
+      where: 'RA Bill 3 · Item 1',
+      what: 'RA Bill 3 understates the previous cumulative quantity as 200 m³, but RA Bill 2 already certified 450 m³ — 250 m³ is being billed a second time.',
+      rupee_impact: 53100,
+      confidence: 'HIGH',
+      confidence_pct: 91,
+      citation: 'RA Bill 2, cum_qty_todate: 450 m³ · RA Bill 3, cum_qty_prev stated: 200 m³',
+      action: 'revise RA Bill 3 to remove the 250 m³ of excavation already certified and paid in RA Bill 2',
+      expected: '450 m³',
+      actual: '200 m³',
+      delta: '250 m³ re-billed',
+      explain_simple: 'The contractor "forgot" some of the soil already paid for in an earlier bill, so 250 m³ is about to be paid for twice.',
+      doc_lines: [
+        'RA BILL 3 · ITEM 1',
+        'Description : Earthwork excavation in foundation',
+        'Cum. qty (prev) stated : 200 m³  ← flagged',
+        'Cum. qty per RA Bill 2 : 450 m³',
+        'Discrepancy            : 250 m³ re-billed'
+      ],
+      doc_hl_index: 2
+    },
+    {
+      id: 'E3',
+      bill_no: 2,
+      item_no: 5,
+      item_description: 'Brickwork 230 mm in CM 1:6',
+      flag_type: 'rate_drift',
+      where: 'RA Bill 2 · Item 5',
+      what: 'This line was billed at ₹995/m², ₹45 above the locked BOQ rate of ₹950/m².',
+      rupee_impact: 26550,
+      confidence: 'HIGH',
+      confidence_pct: 89,
+      citation: 'BOQ line 5: rate 950.0 · RA Bill 2: rate_charged 995.0',
+      action: 'revise the billed rate to the locked BOQ rate of ₹950/m² and adjust this bill accordingly',
+      expected: '₹950/m²',
+      actual: '₹995/m²',
+      delta: '+₹45/m²',
+      explain_simple: 'The brickwork rate was quietly raised above the price locked in the BOQ, adding a little extra to every square metre.',
+      doc_lines: [
+        'RA BILL 2 · ITEM 5',
+        'Description : Brickwork 230 mm in CM 1:6',
+        'BOQ rate (locked) : ₹950.00/m²',
+        'Billed rate       : ₹995.00/m²  ← flagged',
+        'Variance          : +₹45.00/m²'
+      ],
+      doc_hl_index: 3
+    }
+  ];
+
+  flags.sort((a, b) => b.rupee_impact - a.rupee_impact);
+
+  function formatINR(n) {
+    return '₹' + n.toLocaleString('en-IN');
+  }
+
+  function typeInfo(t) {
+    if (t === 'gst_mismatch') return { cls: 'gst', label: 'GST/HSN check' };
+    if (t === 'cumulative_mismatch') return { cls: 'cumulative', label: 'Double-billing check' };
+    if (t === 'rate_drift') return { cls: 'rate', label: 'Rate check' };
+    return { cls: '', label: '' };
+  }
+
+  function auditTrailSteps(f) {
+    return [
+      'Read BOQ line ' + f.item_no + ' (' + f.item_description + ')',
+      'Read RA Bill ' + f.bill_no,
+      'Compared expected vs. actual values',
+      'Flagged mismatch — ' + f.confidence + ' confidence (' + f.confidence_pct + '%)'
+    ];
+  }
+
+  function renderFlags() {
+    const list = document.getElementById('flags-list');
+    list.innerHTML = flags.map((f, i) => {
+      const t = typeInfo(f.flag_type);
+      return `
+        <div class="flag-card ${t.cls}">
+          <div class="flag-card-inner" style="animation-delay: ${i * 90}ms">
+            <div class="flag-top">
+              <div>
+                <div class="flag-where">${f.where}</div>
+                <div class="flag-item">${f.item_description}</div>
+              </div>
+              <span class="type-tag ${t.cls}">${t.label}</span>
+            </div>
+
+            <div class="diff-row">
+              <div class="diff-box good"><span class="diff-box-label">Expected</span><span class="diff-box-value">${f.expected}</span></div>
+              <div class="diff-arrow">→</div>
+              <div class="diff-box bad"><span class="diff-box-label">Actual</span><span class="diff-box-value">${f.actual}</span></div>
+              <div class="diff-box"><span class="diff-box-label">Difference</span><span class="diff-box-value">${f.delta}</span></div>
+            </div>
+
+            <p class="flag-what">${f.what}</p>
+
+            <button class="explain-toggle" data-id="${f.id}">Explain simply ↓</button>
+            <p class="explain-box" id="explain-${f.id}" hidden>${f.explain_simple}</p>
+
+            <div class="flag-impact-row">
+              <span class="flag-impact">${formatINR(f.rupee_impact)}</span>
+              <div class="confidence-meter">
+                <div class="meter-track"><div class="meter-fill" style="width:${f.confidence_pct}%"></div></div>
+                <span class="meter-label">${f.confidence_pct}% · ${f.confidence}</span>
+              </div>
+            </div>
+
+            <div class="flag-footer">
+              <span class="flag-citation">${f.citation}</span>
+              <div class="btn-group">
+                <button class="btn-evidence" data-id="${f.id}">View evidence</button>
+                <button class="btn-email" data-id="${f.id}">Draft vendor email →</button>
+              </div>
+            </div>
+          </div>
+        </div>
+      `;
+    }).join('');
+
+    document.querySelectorAll('.btn-email').forEach(btn => {
+      btn.addEventListener('click', () => openEmailModal(btn.dataset.id));
+    });
+    document.querySelectorAll('.btn-evidence').forEach(btn => {
+      btn.addEventListener('click', () => openEvidence(btn.dataset.id));
+    });
+    document.querySelectorAll('.explain-toggle').forEach(btn => {
+      btn.addEventListener('click', () => {
+        const box = document.getElementById('explain-' + btn.dataset.id);
+        box.hidden = !box.hidden;
+        btn.textContent = box.hidden ? 'Explain simply ↓' : 'Hide explanation ↑';
+      });
+    });
+  }
+
+  function renderVendorBreakdown() {
+    const el = document.getElementById('vendor-breakdown');
+    el.innerHTML = flags.map(f => `
+      <div class="vendor-row">
+        <span>RA Bill ${f.bill_no}</span>
+        <span>${f.flag_type.replace('_', ' ')}</span>
+        <span>${formatINR(f.rupee_impact)}</span>
+      </div>
+    `).join('');
+  }
+
+  function renderTimeline() {
+    const track = document.getElementById('timeline-track');
+    const bills = [1, 2, 3];
+    let html = `<div class="timeline-node"><span class="timeline-dot"></span><span class="timeline-label">BOQ</span></div><div class="timeline-connector"></div>`;
+    bills.forEach((b, i) => {
+      const flag = flags.find(f => f.bill_no === b);
+      html += `<div class="timeline-node${flag ? ' flag' : ''}">
+        <span class="timeline-dot"></span>
+        <span class="timeline-label">RA Bill ${b}</span>
+        ${flag ? `<span class="timeline-tag">${typeInfo(flag.flag_type).label}</span>` : ''}
+      </div>`;
+      html += `<div class="timeline-connector"></div>`;
+    });
+    html += `<div class="timeline-node flag"><span class="timeline-dot"></span><span class="timeline-label">${flags.length} mismatches found</span></div>`;
+    track.innerHTML = html;
+  }
+
+  function renderReco() {
+    const list = document.getElementById('reco-list');
+    const items = [...flags].sort((a, b) => b.rupee_impact - a.rupee_impact)
+      .map(f => `Review ${f.item_description} (${f.where})`);
+    list.innerHTML = items.map(t => `<li>${t}</li>`).join('');
+  }
+
+  const raf = (typeof requestAnimationFrame === 'function')
+    ? requestAnimationFrame.bind(window)
+    : (cb) => setTimeout(cb, 16);
+
+  function renderGauge(pct) {
+    const fg = document.getElementById('gauge-fg');
+    if (!fg) return;
+    const len = 157;
+    const offset = len * (1 - pct / 100);
+    fg.style.strokeDashoffset = len;
+    raf(() => {
+      raf(() => { fg.style.strokeDashoffset = offset; });
+    });
+  }
+
+  function animateMoneyCounter(total) {
+    const el = document.getElementById('money-counter');
+    if (!el) return;
+    const duration = 900;
+    const start = (typeof performance !== 'undefined') ? performance.now() : Date.now();
+    function frame(now) {
+      const p = Math.min(1, (now - start) / duration);
+      el.textContent = formatINR(Math.floor(p * total));
+      if (p < 1) raf(frame);
+      else el.textContent = formatINR(total);
+    }
+    raf(frame);
+  }
+
+  function openEvidence(id) {
+    const f = flags.find(x => x.id === id);
+    const linesHtml = f.doc_lines.map((line, i) =>
+      `<div class="doc-line${i === f.doc_hl_index ? ' hl' : ''}">${line}</div>`
+    ).join('');
+    const stepsHtml = auditTrailSteps(f).map((s, i) =>
+      `<div class="audit-step"><span class="step-n">${i + 1}</span><span>${s}</span></div>`
+    ).join('');
+    document.getElementById('evidence-split').innerHTML = `
+      <div class="evidence-doc">${linesHtml}</div>
+      <div class="evidence-side">
+        <h4>What we found</h4>
+        <p>${f.what}</p>
+        <h4>Suggested resolution</h4>
+        <p>Please ${f.action}.</p>
+        <h4>How ContractGuard found this</h4>
+        <div class="audit-trail">${stepsHtml}</div>
+      </div>
+    `;
+    document.getElementById('evidence-overlay').classList.add('open');
+  }
+
+  document.getElementById('evidence-close').addEventListener('click', () => {
+    document.getElementById('evidence-overlay').classList.remove('open');
+  });
+  document.getElementById('evidence-overlay').addEventListener('click', (e) => {
+    if (e.target.id === 'evidence-overlay') document.getElementById('evidence-overlay').classList.remove('open');
+  });
+
+  let currentEmailText = '';
+  let currentEmailSubject = '';
+  let currentEmailBody = '';
+
+  function openEmailModal(id) {
+    const f = flags.find(x => x.id === id);
+    const subject = `RA Bill ${f.bill_no} — discrepancy on ${f.item_description} (Item ${f.item_no}) — Shree Balaji Residency`;
+    const body = `Dear M/s Verma Constructions,
+
+During reconciliation of RA Bill ${f.bill_no} for the Shree Balaji Residency project, we found a discrepancy on Item ${f.item_no} (${f.item_description}):
+
+${f.what}
+
+Rupee impact: ${formatINR(f.rupee_impact)}
+
+Requested action: Please ${f.action}.
+
+Kindly revert with a revised bill or credit note at your earliest convenience.
+
+Regards,
+Project QS Team`;
+
+    currentEmailText = `Subject: ${subject}\n\n${body}`;
+    currentEmailSubject = subject;
+    currentEmailBody = body;
+
+    document.getElementById('modal-body').innerHTML = `
+      <div class="email-field"><label>To</label><div>accounts@vermaconstructions.in</div></div>
+      <div class="email-field"><label>Subject</label><div>${subject}</div></div>
+      <div class="email-field"><label>Body</label><pre>${body}</pre></div>
+    `;
+    document.getElementById('modal-overlay').classList.add('open');
+  }
+
+  function closeModal() {
+    document.getElementById('modal-overlay').classList.remove('open');
+  }
+
+  document.getElementById('modal-close').addEventListener('click', closeModal);
+  document.getElementById('modal-overlay').addEventListener('click', (e) => {
+    if (e.target.id === 'modal-overlay') closeModal();
+  });
+  document.addEventListener('keydown', (e) => {
+    if (e.key === 'Escape') { closeModal(); document.getElementById('evidence-overlay').classList.remove('open'); }
+  });
+
+  document.getElementById('copy-btn').addEventListener('click', async () => {
+    const btn = document.getElementById('copy-btn');
+    const original = btn.textContent;
+    try {
+      await navigator.clipboard.writeText(currentEmailText);
+      btn.textContent = 'Copied ✓';
+    } catch (e) {
+      btn.textContent = 'Select & copy manually';
+    }
+    setTimeout(() => { btn.textContent = original; }, 1600);
+  });
+
+  document.getElementById('email-pdf-btn').addEventListener('click', () => {
+    try {
+      const { jsPDF } = window.jspdf;
+      const doc = new jsPDF();
+      doc.setFontSize(11);
+      const lines = doc.splitTextToSize(currentEmailText, 180);
+      doc.text(lines, 14, 20);
+      doc.save('Vendor_Email_Draft.pdf');
+    } catch (e) {
+      alert('PDF generation needs an internet connection to load the PDF library.');
+    }
+  });
+
+  document.getElementById('email-outlook-btn').addEventListener('click', () => {
+    const mailto = `mailto:accounts@vermaconstructions.in?subject=${encodeURIComponent(currentEmailSubject)}&body=${encodeURIComponent(currentEmailBody)}`;
+    window.location.href = mailto;
+  });
+
+  document.querySelectorAll('.tab').forEach(tab => {
+    tab.addEventListener('click', () => {
+      document.querySelectorAll('.tab').forEach(t => t.classList.remove('active'));
+      document.querySelectorAll('.view').forEach(v => v.classList.remove('active'));
+      tab.classList.add('active');
+      document.getElementById(tab.dataset.tab).classList.add('active');
+    });
+  });
+
+  /* ---------- Stage flow: landing → processing → app ---------- */
+  function switchStage(name) {
+    document.querySelectorAll('.stage').forEach(s => s.classList.remove('active'));
+    document.getElementById('stage-' + name).classList.add('active');
+  }
+
+  function checkAnalyzeReady() {
+    const boqDone = document.getElementById('upload-boq').classList.contains('done');
+    const raDone = document.getElementById('upload-ra').classList.contains('done');
+    document.getElementById('analyze-btn').disabled = !(boqDone && raDone);
+  }
+
+  document.getElementById('upload-boq').addEventListener('click', function () { this.classList.toggle('done'); checkAnalyzeReady(); });
+  document.getElementById('upload-ra').addEventListener('click', function () { this.classList.toggle('done'); checkAnalyzeReady(); });
+
+  document.getElementById('analyze-btn').addEventListener('click', () => {
+    switchStage('processing');
+    runProcessing();
+  });
+
+  let processingTimer = null;
+
+  function runProcessing() {
+    const items = Array.from(document.querySelectorAll('#process-steps li'));
+    items.forEach(li => li.classList.remove('active', 'done'));
+    document.getElementById('process-result').classList.remove('show');
+    document.getElementById('process-result').textContent = '';
+    let idx = 0;
+    function tick() {
+      if (idx > 0) { items[idx - 1].classList.remove('active'); items[idx - 1].classList.add('done'); }
+      if (idx < items.length) {
+        items[idx].classList.add('active');
+        idx++;
+        processingTimer = setTimeout(tick, 550);
+      } else {
+        showProcessResult();
+      }
+    }
+    tick();
+  }
+
+  function showProcessResult() {
+    const total = flags.reduce((sum, f) => sum + f.rupee_impact, 0);
+    const resultEl = document.getElementById('process-result');
+    resultEl.textContent = `${flags.length} discrepancies found · ${formatINR(total)} at risk`;
+    resultEl.classList.add('show');
+    setTimeout(() => { switchStage('app'); init(); }, 900);
+  }
+
+  document.getElementById('process-skip').addEventListener('click', () => {
+    clearTimeout(processingTimer);
+    document.querySelectorAll('#process-steps li').forEach(li => { li.classList.remove('active'); li.classList.add('done'); });
+    showProcessResult();
+  });
+
+  document.getElementById('restart-btn').addEventListener('click', () => {
+    document.getElementById('upload-boq').classList.remove('done');
+    document.getElementById('upload-ra').classList.remove('done');
+    checkAnalyzeReady();
+    switchStage('landing');
+  });
+
+  document.getElementById('dark-toggle').addEventListener('click', () => {
+    document.body.classList.toggle('dark');
+    document.getElementById('dark-toggle').textContent = document.body.classList.contains('dark') ? '☀️ Light mode' : '🌙 Dark mode';
+  });
+
+  function downloadBlob(content, filename, type) {
+    const blob = new Blob([content], { type });
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement('a');
+    a.href = url;
+    a.download = filename;
+    document.body.appendChild(a);
+    a.click();
+    document.body.removeChild(a);
+    URL.revokeObjectURL(url);
+  }
+
+  document.getElementById('export-csv-btn').addEventListener('click', () => {
+    const headers = ['id', 'bill_no', 'item_no', 'item_description', 'flag_type', 'expected', 'actual', 'delta', 'rupee_impact', 'confidence', 'confidence_pct', 'citation'];
+    const rows = flags.map(f => headers.map(h => `"${String(f[h]).replace(/"/g, '""')}"`).join(','));
+    const csv = [headers.join(','), ...rows].join('\n');
+    downloadBlob(csv, 'ContractGuard_Flags.csv', 'text/csv');
+  });
+
+  document.getElementById('download-report-btn').addEventListener('click', () => {
+    try {
+      const { jsPDF } = window.jspdf;
+      const doc = new jsPDF();
+      let y = 20;
+      const total = flags.reduce((sum, f) => sum + f.rupee_impact, 0);
+      doc.setFontSize(16); doc.text('ContractGuard — Audit Report', 14, y); y += 8;
+      doc.setFontSize(10); doc.text('Shree Balaji Residency · RA Bills 1–3', 14, y); y += 10;
+      doc.setFontSize(12);
+      doc.text('Project risk: HIGH', 14, y); y += 7;
+      doc.text('Potential recovery: ' + formatINR(total), 14, y); y += 12;
+
+      flags.forEach((f, i) => {
+        if (y > 255) { doc.addPage(); y = 20; }
+        doc.setFontSize(12);
+        doc.text(`${i + 1}. ${f.where} — ${f.item_description}`, 14, y); y += 6;
+        doc.setFontSize(10);
+        const whatLines = doc.splitTextToSize(f.what, 180);
+        doc.text(whatLines, 14, y); y += whatLines.length * 5 + 2;
+        doc.text(`Impact: ${formatINR(f.rupee_impact)}   Confidence: ${f.confidence} (${f.confidence_pct}%)`, 14, y); y += 6;
+        const actionLines = doc.splitTextToSize('Suggested resolution: ' + f.action + '.', 180);
+        doc.text(actionLines, 14, y); y += actionLines.length * 5 + 10;
+      });
+
+      doc.save('Audit_Report.pdf');
+    } catch (e) {
+      alert('PDF generation needs an internet connection to load the PDF library.');
+    }
+  });
+
+  /* ---------- AI chat (scripted demo responses) ---------- */
+  const chatAnswers = {
+    gst: () => flags.find(f => f.flag_type === 'gst_mismatch').explain_simple,
+    recover: () => {
+      const total = flags.reduce((s, f) => s + f.rupee_impact, 0);
+      return `Across all ${flags.length} flags on RA Bills 1–3, ContractGuard estimates ${formatINR(total)} is potentially recoverable.`;
+    },
+    critical: () => {
+      const top = [...flags].sort((a, b) => b.rupee_impact - a.rupee_impact)[0];
+      return `The most critical issue is ${top.where} — ${top.item_description}, worth ${formatINR(top.rupee_impact)} at ${top.confidence_pct}% confidence.`;
+    },
+    pm: () => {
+      const total = flags.reduce((s, f) => s + f.rupee_impact, 0);
+      return `For a project manager: ${flags.length} billing discrepancies were found totaling ${formatINR(total)}. The largest is a GST overcharge on RA Bill 1. Recommend holding payment on the affected line items until the contractor issues corrected bills.`;
+    }
+  };
+
+  function pushMsg(text, cls) {
+    const log = document.getElementById('chat-log');
+    const div = document.createElement('div');
+    div.className = 'chat-msg ' + cls;
+    div.textContent = text;
+    log.appendChild(div);
+    log.scrollTop = log.scrollHeight;
+    return div;
+  }
+
+  function askChat(key, label) {
+    pushMsg(label, 'user');
+    const typing = pushMsg('Thinking…', 'ai typing');
+    setTimeout(() => {
+      typing.remove();
+      const answer = chatAnswers[key] ? chatAnswers[key]() : "For this demo, try one of the quick prompts above — the live version would reason over the full BOQ and RA bills.";
+      pushMsg(answer, 'ai');
+    }, 650);
+  }
+
+  document.querySelectorAll('.chat-chip').forEach(chip => {
+    chip.addEventListener('click', () => askChat(chip.dataset.q, chip.textContent));
+  });
+
+  function sendChatInput() {
+    const input = document.getElementById('chat-input');
+    const text = input.value.trim();
+    if (!text) return;
+    input.value = '';
+    const lower = text.toLowerCase();
+    let key = null;
+    if (lower.includes('gst')) key = 'gst';
+    else if (lower.includes('recover') || lower.includes('money')) key = 'recover';
+    else if (lower.includes('critical')) key = 'critical';
+    else if (lower.includes('manager') || lower.includes(' pm')) key = 'pm';
+    askChat(key, text);
+  }
+
+  document.getElementById('chat-send').addEventListener('click', sendChatInput);
+  document.getElementById('chat-input').addEventListener('keydown', (e) => { if (e.key === 'Enter') sendChatInput(); });
+
+  document.getElementById('chat-fab').addEventListener('click', () => document.getElementById('chat-panel').classList.add('open'));
+  document.getElementById('chat-close').addEventListener('click', () => document.getElementById('chat-panel').classList.remove('open'));
+
+  function init() {
+    renderFlags();
+    renderVendorBreakdown();
+    renderTimeline();
+    renderReco();
+
+    // Fill in the core stats FIRST, before any animation-dependent rendering,
+    // so a missing/throwing requestAnimationFrame (headless renderers, some
+    // export tools, restrictive webviews) can never leave these blank.
+    const total = flags.reduce((sum, f) => sum + f.rupee_impact, 0);
+    document.getElementById('stat-count').textContent = flags.length;
+    document.getElementById('stat-total').textContent = formatINR(total);
+    const uniqueBills = new Set(flags.map(f => f.bill_no)).size;
+    document.getElementById('vendor-summary').textContent = `${flags.length} flags across ${uniqueBills} bills`;
+    document.getElementById('vendor-total').textContent = `Total disputed: ${formatINR(total)}`;
+
+    const topFlag = [...flags].sort((a, b) => b.rupee_impact - a.rupee_impact)[0];
+    document.getElementById('exec-critical').textContent = `${typeInfo(topFlag.flag_type).label} on ${topFlag.where} — ${formatINR(topFlag.rupee_impact)}`;
+
+    // Animation-dependent calls go last, wrapped so a failure here can
+    // never take the stats above down with it.
+    try { renderGauge(88); } catch (e) { console.warn('renderGauge skipped:', e); }
+    try { animateMoneyCounter(total); } catch (e) {
+      console.warn('animateMoneyCounter skipped:', e);
+      document.getElementById('money-counter').textContent = formatINR(total);
+    }
+  }
+
+
+  init();
+</script>
+</body>
+</html>

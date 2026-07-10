@@ -67,8 +67,7 @@ a browser — it's a self-contained file, no server or build step needed.
 Click **Upload BOQ** → **Upload RA Bills** → **Analyze Contract** to walk
 through the flow.
 
-A hosted version is also available at: **[GitHub Pages link — add once
-enabled]**
+A hosted version is also available at: **https://hrshita-mnv.github.io/ContractGuard/dashboard/ContractGuard_Dashboard_Mockup_v4_STABLE.html**
 
 ## How it works
 

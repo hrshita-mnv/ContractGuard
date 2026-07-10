@@ -1,0 +1,278 @@
+{
+  "project": "Shree Balaji Residency, Block B",
+  "contractor": "M/s Verma Constructions",
+  "schema_version": "v0",
+  "hsn_reference": {
+    "9954": 18,
+    "2523": 28
+  },
+  "boq": [
+    {
+      "item_no": 1,
+      "description": "Earthwork excavation in foundation",
+      "unit": "m3",
+      "boq_qty": 500,
+      "boq_rate": 180.0,
+      "gst_pct": 18,
+      "hsn_code": "9954"
+    },
+    {
+      "item_no": 2,
+      "description": "PCC 1:4:8 in foundation",
+      "unit": "m3",
+      "boq_qty": 60,
+      "boq_rate": 4800.0,
+      "gst_pct": 18,
+      "hsn_code": "9954"
+    },
+    {
+      "item_no": 3,
+      "description": "RCC M25 in footings & columns",
+      "unit": "m3",
+      "boq_qty": 120,
+      "boq_rate": 7200.0,
+      "gst_pct": 18,
+      "hsn_code": "9954"
+    },
+    {
+      "item_no": 4,
+      "description": "Steel reinforcement Fe500",
+      "unit": "MT",
+      "boq_qty": 40,
+      "boq_rate": 78000.0,
+      "gst_pct": 18,
+      "hsn_code": "9954"
+    },
+    {
+      "item_no": 5,
+      "description": "Brickwork 230 mm in CM 1:6",
+      "unit": "m2",
+      "boq_qty": 2000,
+      "boq_rate": 950.0,
+      "gst_pct": 18,
+      "hsn_code": "9954"
+    },
+    {
+      "item_no": 6,
+      "description": "Internal plaster 12 mm",
+      "unit": "m2",
+      "boq_qty": 4500,
+      "boq_rate": 210.0,
+      "gst_pct": 18,
+      "hsn_code": "9954"
+    },
+    {
+      "item_no": 7,
+      "description": "External plaster 18 mm",
+      "unit": "m2",
+      "boq_qty": 2800,
+      "boq_rate": 260.0,
+      "gst_pct": 18,
+      "hsn_code": "9954"
+    },
+    {
+      "item_no": 8,
+      "description": "Vitrified tile flooring 600x600",
+      "unit": "m2",
+      "boq_qty": 1800,
+      "boq_rate": 1150.0,
+      "gst_pct": 18,
+      "hsn_code": "9954"
+    },
+    {
+      "item_no": 9,
+      "description": "Terrace waterproofing (membrane)",
+      "unit": "m2",
+      "boq_qty": 600,
+      "boq_rate": 480.0,
+      "gst_pct": 18,
+      "hsn_code": "9954"
+    },
+    {
+      "item_no": 10,
+      "description": "Aluminium sliding windows",
+      "unit": "m2",
+      "boq_qty": 350,
+      "boq_rate": 4200.0,
+      "gst_pct": 18,
+      "hsn_code": "9954"
+    },
+    {
+      "item_no": 11,
+      "description": "Flush doors incl. frame & fittings",
+      "unit": "Nos",
+      "boq_qty": 80,
+      "boq_rate": 6500.0,
+      "gst_pct": 18,
+      "hsn_code": "9954"
+    },
+    {
+      "item_no": 12,
+      "description": "Interior painting, 2 coats emulsion",
+      "unit": "m2",
+      "boq_qty": 6000,
+      "boq_rate": 95.0,
+      "gst_pct": 18,
+      "hsn_code": "9954"
+    },
+    {
+      "item_no": 13,
+      "description": "Electrical wiring points (concealed)",
+      "unit": "Nos",
+      "boq_qty": 750,
+      "boq_rate": 850.0,
+      "gst_pct": 18,
+      "hsn_code": "9954"
+    },
+    {
+      "item_no": 14,
+      "description": "CPVC water supply piping",
+      "unit": "m",
+      "boq_qty": 1200,
+      "boq_rate": 320.0,
+      "gst_pct": 18,
+      "hsn_code": "9954"
+    },
+    {
+      "item_no": 15,
+      "description": "Supply of OPC 43 grade cement",
+      "unit": "Bags",
+      "boq_qty": 2500,
+      "boq_rate": 380.0,
+      "gst_pct": 28,
+      "hsn_code": "2523"
+    }
+  ],
+  "ra_bills": [
+    {
+      "bill_no": 1,
+      "bill_date": "2026-03-31",
+      "lines": [
+        {
+          "item_no": 1,
+          "cum_qty_prev": 0,
+          "cum_qty_todate": 200,
+          "qty_this_bill": 200,
+          "rate_charged": 180.0,
+          "gst_pct_charged": 18
+        },
+        {
+          "item_no": 2,
+          "cum_qty_prev": 0,
+          "cum_qty_todate": 40,
+          "qty_this_bill": 40,
+          "rate_charged": 4800.0,
+          "gst_pct_charged": 18
+        },
+        {
+          "item_no": 3,
+          "cum_qty_prev": 0,
+          "cum_qty_todate": 50,
+          "qty_this_bill": 50,
+          "rate_charged": 7200.0,
+          "gst_pct_charged": 18
+        },
+        {
+          "item_no": 4,
+          "cum_qty_prev": 0,
+          "cum_qty_todate": 15,
+          "qty_this_bill": 15,
+          "rate_charged": 78000.0,
+          "gst_pct_charged": 28
+        },
+        {
+          "item_no": 15,
+          "cum_qty_prev": 0,
+          "cum_qty_todate": 800,
+          "qty_this_bill": 800,
+          "rate_charged": 380.0,
+          "gst_pct_charged": 28
+        }
+      ]
+    },
+    {
+      "bill_no": 2,
+      "bill_date": "2026-04-30",
+      "lines": [
+        {
+          "item_no": 1,
+          "cum_qty_prev": 200,
+          "cum_qty_todate": 450,
+          "qty_this_bill": 250,
+          "rate_charged": 180.0,
+          "gst_pct_charged": 18
+        },
+        {
+          "item_no": 3,
+          "cum_qty_prev": 50,
+          "cum_qty_todate": 110,
+          "qty_this_bill": 60,
+          "rate_charged": 7200.0,
+          "gst_pct_charged": 18
+        },
+        {
+          "item_no": 4,
+          "cum_qty_prev": 15,
+          "cum_qty_todate": 28,
+          "qty_this_bill": 13,
+          "rate_charged": 78000.0,
+          "gst_pct_charged": 18
+        },
+        {
+          "item_no": 5,
+          "cum_qty_prev": 0,
+          "cum_qty_todate": 500,
+          "qty_this_bill": 500,
+          "rate_charged": 995.0,
+          "gst_pct_charged": 18
+        },
+        {
+          "item_no": 15,
+          "cum_qty_prev": 800,
+          "cum_qty_todate": 1500,
+          "qty_this_bill": 700,
+          "rate_charged": 380.0,
+          "gst_pct_charged": 28
+        }
+      ]
+    },
+    {
+      "bill_no": 3,
+      "bill_date": "2026-05-31",
+      "lines": [
+        {
+          "item_no": 1,
+          "cum_qty_prev": 200,
+          "cum_qty_todate": 500,
+          "qty_this_bill": 300,
+          "rate_charged": 180.0,
+          "gst_pct_charged": 18
+        },
+        {
+          "item_no": 3,
+          "cum_qty_prev": 110,
+          "cum_qty_todate": 120,
+          "qty_this_bill": 10,
+          "rate_charged": 7200.0,
+          "gst_pct_charged": 18
+        },
+        {
+          "item_no": 5,
+          "cum_qty_prev": 500,
+          "cum_qty_todate": 1200,
+          "qty_this_bill": 700,
+          "rate_charged": 950.0,
+          "gst_pct_charged": 18
+        },
+        {
+          "item_no": 6,
+          "cum_qty_prev": 0,
+          "cum_qty_todate": 800,
+          "qty_this_bill": 800,
+          "rate_charged": 210.0,
+          "gst_pct_charged": 18
+        }
+      ]
+    }
+  ]
+}
